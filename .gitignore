@@ -1,2 +1,9 @@
 __pycache__/
 *.pyc
+
+# Prevent accidental inclusion of local company data in public releases.
+workspace/
+secrets/
+.env
+.env.*
+!.env.example
