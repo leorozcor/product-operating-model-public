@@ -82,6 +82,8 @@ cp templates/*.csv templates/pom.json templates/decision-log.md workspace/2027-T
 cp templates/strategy.md templates/product-strategy.md workspace/2027-T1/
 ```
 
+The public edition's `.gitignore` excludes `workspace/`. In the company's private copy, remove that line so workspaces are committed: git history is the audit trail for check-ins, actions and decisions.
+
 In `workspace/2027-T1/pom.json`, set the term dates, the gemba cadence (`weekly`, `sprint` or `monthly`), the teams, and optionally `baseline_due` (default: three weeks after the term starts). Dates live only here, so an old term's calendar can't sneak into a new one.
 
 ## Step 6. Teams draft their OKRs

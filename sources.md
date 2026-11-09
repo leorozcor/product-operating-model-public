@@ -13,7 +13,7 @@ The licences (see `README.md`) cover this toolkit's own text and code. They gran
 | Evidence grades A, B, C, ? | Luis Orozco, from his own retrospectives | `BELIEFS.md` 4.4, `bin/pom` |
 | PEAK: terms, a weekly gemba, squad walls, sherpas | ActioGlobal. Practised by Luis; not his framework | Influence on terms and gembas. No PEAK material is reproduced |
 | KPI definition fields (owner, data owner, source, frequency, availability, unit); guardrail metrics during a migration | Common goal-steering practice in product organisations | `templates/kpi-definitions.csv`, the guardrail KR type |
-| Diagnostic prompts for OKR adoption | Luis Orozco's synthesis of product leadership practice; scenarios are illustrative, not evaluations of identifiable employers | `model/maturity.md` |
+| Patterns to look for in OKR adoption | Luis Orozco's experience with OKRs in several product organisations, written so that no organisation is identifiable | `model/maturity.md` |
 | Discovery: test the riskiest assumption proportionately, agree what would change your mind before results, separate "the solution worked" from "the outcome moved" from "it caused it" | Luis Orozco's OKR guidance and his 2023 talk; Marty Cagan's four product risks | `model/discovery-and-evidence.md` |
 | Teams as peers, explicit decision boundaries, dependency handshakes | Luis Orozco's talks on handling dependencies (2022) and on product organisations (2023) | `model/teams-and-dependencies.md`, `templates/dependency-handshake.md` |
 | Narratives, Commitments and Tasks | Ravi Mehta (taught on Reforge) | Adapted and paraphrased in `model/okrs.md`; "tasks" are called initiatives |

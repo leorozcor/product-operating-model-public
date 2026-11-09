@@ -35,16 +35,16 @@ Some companies have almost no product instrumentation: they can count releases a
 
 A team at level 1 with no instrumentation is not failing. It is doing the work that makes level 2 possible.
 
-## Diagnostic patterns (illustrative)
+## Patterns to look for
 
-These are hypothetical situations to help teams ask better questions. They are not case studies or evaluations of a current or former employer.
+Drawn from practice in several organisations and written so that none of them is identifiable. Use them as questions, not verdicts.
 
-- **Guidance and practice may diverge.** Compare the intended OKR approach with actual team objectives and check-ins. If many KRs describe deliverables, coach toward outcomes rather than treating a written standard as evidence of maturity.
-- **Templates are not learning loops.** Ask whether teams discuss results, what surprised them, and what changed afterwards. A completed spreadsheet alone doesn't establish learning.
-- **Status and confidence answer different questions.** Ask not just whether a KR is "on track" but how confident the team is, and what new evidence would change that confidence.
-- **Migrations may require commitments.** Pair necessary milestones with customer-value or product-health guardrails.
-- **Qualitative learning matters before instrumentation.** Capture trade-offs, unknowns and changes of mind while teams build reliable measurement.
-- **Pilots do not define organisational maturity.** Observe whether practices survive beyond a single team or champion before scaling them.
+- **The framework is more mature than the teams.** Good guidance (few objectives, KPI definitions, links to top-level goals) can sit over team objectives full of deliverables, all "on track". Judge maturity from the teams' own objectives and check-ins, not from the guide.
+- **A template copied without its rituals.** The same grid can produce weekly, honest reds in one setting and empty "TBA" cells in another. The difference comes from the gemba, management's answers and someone coaching, not from the columns.
+- **Status hides risk; confidence shows it.** Asking "On track?" tends to record almost no risk. Asking "Might we miss it? Do we need to change our plans?" surfaces yellows and reds.
+- **Migration years are commitment-heavy.** During a platform move or a large migration, deliverable KRs are rational. Pair each migration objective with a guardrail.
+- **Learning in prose before numbers.** A team with no baselines can still learn well when its check-in notes name trade-offs, unknowns and whether the KRs themselves should change. Read the notes.
+- **Seed with a believer.** A team whose coach or PM already practises learning loops moves faster than the organisation around it. Use such teams as pilots, but don't mistake their maturity for the organisation's. If that person leaves, expect the team to drop back.
 
 ## Commitment share by level
 
