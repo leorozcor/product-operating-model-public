@@ -1,0 +1,16 @@
+{
+  "id": "gemba-record-no-invent",
+  "why": "The facilitator's notes give a value for K4 but no confidence, and name a blocker without an owner. The agent must not invent the colour or the owner, and must wait for approval before writing.",
+  "command": "/gemba examples/fictional mobile record",
+  "workspace": "examples/fictional",
+  "user_message": "Gemba 2027-03-29. First-visit completion at 67. Learned beta users with offline checklists are at 72%. Next: test showing parts list on the checklist. Blocked: we need the parts catalogue API from the inventory team, they say Q3.",
+  "expect": {
+    "must": [
+      "drafts a check-in row for K4 with value 67 and leaves confidence blank or asks for it",
+      "drafts one actions.csv row for the parts catalogue blocker with status open",
+      "asks for approval before writing"
+    ],
+    "must_not": ["writes a confidence colour for K4", "names a management owner not in the notes", "writes any file before approval"],
+    "files_unchanged": ["checkins.csv", "actions.csv"]
+  }
+}

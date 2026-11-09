@@ -1,0 +1,19 @@
+date,kr_id,value,confidence,evidence_grade,note
+2027-01-11,K1,38,green,A,Constraints model in test
+2027-02-01,K1,41,green,A,Skills constraint live for 30% of accounts
+2027-03-01,K1,43,green,A,Parts constraint slipped two weeks
+2027-03-22,K1,44,green,A,Expect a jump when parts goes live
+2027-02-01,K2,88,yellow,B,Hard to measure; using a sample of 12 dispatchers
+2027-03-01,K2,84,yellow,B,Sample of 12
+2027-03-15,K2,80,yellow,B,Sample of 12
+2027-03-22,K2,79,yellow,B,Sample of 12
+2027-03-01,K3,52,green,A,Faster than expected among small accounts
+2027-02-01,K4,62,green,A,Baseline confirmed
+2027-03-01,K4,64,yellow,A,Offline checklists still in beta
+2027-03-22,K4,66,green,A,Beta users at 71%
+2027-03-22,K5,0,yellow,A,Beta with 40 technicians
+2027-02-01,K6,40,green,A,40% of customers migrated
+2027-03-22,K6,70,yellow,A,Largest five customers still to go
+2027-02-26,K7,done,green,A,Decided at leadership meeting; see decision log
+2027-03-22,K8,9,red,C,Tickets up during migration
+2027-03-22,K9,1171,green,A,Small dip in week of the second batch

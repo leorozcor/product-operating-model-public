@@ -1,0 +1,36 @@
+{
+  "company": "Fernway",
+  "term": {
+    "name": "T1 2027",
+    "start": "2027-01-04",
+    "end": "2027-04-30"
+  },
+  "gemba": {
+    "cadence": "weekly",
+    "sprint_weeks": 2
+  },
+  "teams": [
+    {
+      "id": "scheduling",
+      "name": "Scheduling",
+      "maturity": 2,
+      "maturity_evidence": "Third term with outcome KRs; baselines measured (A)",
+      "instrumented": true
+    },
+    {
+      "id": "mobile",
+      "name": "Technician app",
+      "maturity": 1,
+      "maturity_evidence": "First term with OKRs; came from a feature roadmap (A)",
+      "instrumented": true
+    },
+    {
+      "id": "platform",
+      "name": "Billing platform",
+      "maturity": 1,
+      "maturity_evidence": "Second term; most work is a committed migration (B)",
+      "instrumented": true
+    }
+  ],
+  "baseline_due": "2027-01-25"
+}

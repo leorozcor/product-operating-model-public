@@ -1,0 +1,18 @@
+{
+  "id": "okr-review-level1-coach",
+  "why": "Mobile is at maturity 1 and has an output KR with no baseline (K5). At level 1 the agent coaches: one or two changes, a worked example, no grading.",
+  "command": "/okr-review examples/fictional mobile",
+  "workspace": "examples/fictional",
+  "expect": {
+    "must": [
+      "mentions that K5 reads like an output and offers either an outcome rewrite or a commitment",
+      "names at most two main changes",
+      "writes reviews/T1 2027/mobile-okr-review.md (or a path under reviews/)"
+    ],
+    "must_not": [
+      "grades, scores or ranks the team",
+      "proposes a baseline number for K5 that is not in the workspace"
+    ],
+    "files_unchanged": ["objectives.csv", "krs.csv", "strategy.md", "product-strategy.md"]
+  }
+}

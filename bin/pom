@@ -1,0 +1,556 @@
+#!/usr/bin/env python3
+"""pom: checks and reports for a product operating model workspace.
+
+A workspace is a folder with pom.json, objectives.csv, krs.csv and,
+optionally, checkins.csv, actions.csv and health.csv (see templates/).
+
+    bin/pom check  [WORKSPACE] [--today YYYY-MM-DD]
+    bin/pom report [WORKSPACE] [--today YYYY-MM-DD]
+
+`check` lists problems in the OKR set and exits 1 if any is an error.
+`report` prints a Markdown report for a gemba or term review.
+Neither command edits any file. Standard library only.
+"""
+
+import csv
+import json
+import os
+import re
+import sys
+from datetime import date, timedelta
+
+KR_TYPES = {"outcome", "commitment", "stretch", "guardrail"}
+MEASURED_TYPES = ("outcome", "stretch", "guardrail")
+COMMITMENT_KINDS = {"think", "build", "launch", "date", "measure"}
+OBJECTIVE_KINDS = {"product", "platform", "migration", "statutory"}
+# Objectives of these kinds may be commitment-heavy; they don't count toward
+# the commitment-share warning. Platform and migration objectives need a
+# guardrail or outcome KR instead.
+COMMITMENT_OK_KINDS = {"platform", "migration", "statutory"}
+NEEDS_GUARDRAIL_KINDS = {"platform", "migration"}
+DEFAULT_BASELINE_DAYS = 21
+CONFIDENCES = {"green", "yellow", "red"}
+ACTION_STATUSES = {"open", "solved", "decided", "parked"}
+GRADES = {"A", "B", "C", "?"}
+CADENCE_DAYS = {"weekly": 7, "monthly": 30}
+OUTPUT_VERBS = (
+    "launch", "build", "create", "develop", "deliver", "implement",
+    "release", "ship", "define", "make", "complete", "finish", "deploy",
+)
+DEFAULT_COMMITMENT_WARN = {2: 0.5, 3: 0.3}
+
+
+# ---------- loading ----------
+
+def read_csv(path):
+    if not os.path.exists(path):
+        return []
+    with open(path, newline="", encoding="utf-8") as f:
+        return [
+            {k.strip(): (v or "").strip() for k, v in row.items() if k}
+            for row in csv.DictReader(f)
+        ]
+
+
+def parse_date(text):
+    try:
+        return date.fromisoformat(text)
+    except (TypeError, ValueError):
+        return None
+
+
+def to_float(text):
+    try:
+        return float(str(text).replace("%", "").replace(",", ""))
+    except (TypeError, ValueError):
+        return None
+
+
+class Workspace:
+    def __init__(self, root):
+        self.root = root
+        with open(os.path.join(root, "pom.json"), encoding="utf-8") as f:
+            self.config = json.load(f)
+        self.objectives = read_csv(os.path.join(root, "objectives.csv"))
+        self.krs = read_csv(os.path.join(root, "krs.csv"))
+        self.checkins = read_csv(os.path.join(root, "checkins.csv"))
+        self.actions = read_csv(os.path.join(root, "actions.csv"))
+        self.health = read_csv(os.path.join(root, "health.csv"))
+        term = self.config.get("term", {})
+        self.term_name = term.get("name", "term")
+        self.term_start = parse_date(term.get("start"))
+        self.term_end = parse_date(term.get("end"))
+        self.teams = {t["id"]: t for t in self.config.get("teams", [])}
+        bd = self.config.get("baseline_due")
+        if bd:
+            self.baseline_due = parse_date(bd)
+        elif self.term_start:
+            self.baseline_due = self.term_start + timedelta(days=DEFAULT_BASELINE_DAYS)
+        else:
+            self.baseline_due = None
+        warn = self.config.get("commitment_share_warn")
+        if warn:
+            self.commitment_warn = {int(k): float(v) for k, v in warn.items()}
+        else:
+            self.commitment_warn = dict(DEFAULT_COMMITMENT_WARN)
+
+    def level(self, team):
+        return int(self.teams.get(team, {}).get("maturity", 1))
+
+    def instrumented(self, team):
+        return bool(self.teams.get(team, {}).get("instrumented", True))
+
+    def term_days(self):
+        if self.term_start and self.term_end:
+            return (self.term_end - self.term_start).days
+        return None
+
+    def gemba_days(self):
+        gemba = self.config.get("gemba", {})
+        cadence = gemba.get("cadence", "weekly")
+        if cadence == "sprint":
+            return 7 * int(gemba.get("sprint_weeks", 2))
+        return CADENCE_DAYS.get(cadence)
+
+    def term_fraction(self, day):
+        days = self.term_days()
+        if not days or day is None:
+            return None
+        return min(max((day - self.term_start).days / days, 0.0), 1.0)
+
+
+# ---------- check ----------
+
+class Finding:
+    def __init__(self, severity, where, message):
+        self.severity, self.where, self.message = severity, where, message
+
+    def __repr__(self):
+        return f"{self.severity}: {self.where}: {self.message}"
+
+
+def check(ws, today=None):
+    out = []
+
+    def add(sev, where, msg):
+        out.append(Finding(sev, where, msg))
+
+    # config and cadence
+    if not ws.term_start or not ws.term_end or ws.term_end <= ws.term_start:
+        add("error", "pom.json", "term needs a start and an end date (YYYY-MM-DD), end after start")
+    else:
+        days = ws.term_days()
+        if days < 70:
+            add("warn", "pom.json", f"term is {days} days; under ~10 weeks outcome KRs rarely move and teams drift to commitments")
+        if days > 190:
+            add("warn", "pom.json", f"term is {days} days; over ~6 months hypotheses go stale before they are tested")
+        gd = ws.gemba_days()
+        if gd is None:
+            add("error", "pom.json", "gemba cadence must be weekly, sprint or monthly")
+        elif gd >= 28 and days > 150:
+            add("warn", "pom.json", f"monthly gembas with a {days}-day term give about {days // gd} gembas: blockers can wait a month for an answer and watermelons stay hidden; consider shorter terms or a lighter fortnightly gemba")
+    for tid, team in ws.teams.items():
+        if team.get("maturity") not in (0, 1, 2, 3):
+            add("error", "pom.json", f"team {tid}: maturity must be 0, 1, 2 or 3")
+
+    # objectives
+    obj_ids = {}
+    per_team = {}
+    for o in ws.objectives:
+        oid, team = o.get("objective_id", ""), o.get("team", "")
+        where = f"objective {oid or '?'}"
+        if not oid:
+            add("error", "objectives.csv", "row without objective_id")
+            continue
+        if oid in obj_ids:
+            add("error", where, "duplicate objective_id")
+        obj_ids[oid] = o
+        if team not in ws.teams:
+            add("error", where, f"team '{team}' is not in pom.json")
+            continue
+        level = ws.level(team)
+        per_team.setdefault(team, []).append(oid)
+        if not o.get("narrative"):
+            add("warn" if level <= 1 else "error", where,
+                "no narrative: say why this, why now, for whom and what we are not doing")
+        if not o.get("strategy_hypothesis"):
+            add("warn", where, "orphan: names no strategy hypothesis; either the strategy is missing something or this is not strategic")
+        if not o.get("top_metrics"):
+            add("warn", where, "names no top-level metric it should move")
+        okind = (o.get("kind") or "product").lower()
+        if okind not in OBJECTIVE_KINDS:
+            add("error", where, "kind must be product, platform, migration or statutory")
+    for team, oids in per_team.items():
+        level = ws.level(team)
+        limit = 3 if level <= 1 else 5
+        if len(oids) > limit:
+            add("warn", f"team {team}", f"{len(oids)} objectives; keep to {limit} at maturity level {level}")
+        if level == 0:
+            add("info", f"team {team}", "maturity level 0: diagnose first; treat these OKRs as a pilot")
+
+    # key results
+    kr_ids = {}
+    stretch_per_obj = {}
+    krs_per_obj = {}
+    mix = {}
+    measured_per_obj = {}
+    measure_commitments = {}
+    for k in ws.krs:
+        kid = k.get("kr_id", "")
+        where = f"KR {kid or '?'}"
+        if not kid:
+            add("error", "krs.csv", "row without kr_id")
+            continue
+        if kid in kr_ids:
+            add("error", where, "duplicate kr_id")
+        kr_ids[kid] = k
+        oid = k.get("objective_id", "")
+        if oid not in obj_ids:
+            add("error", where, f"objective '{oid}' is not in objectives.csv")
+        team = k.get("team") or obj_ids.get(oid, {}).get("team", "")
+        level = ws.level(team)
+        okind = (obj_ids.get(oid, {}).get("kind") or "product").lower()
+        for partner in [p.strip() for p in k.get("partners", "").split(";") if p.strip()]:
+            if partner not in ws.teams:
+                add("warn", where, f"partner team '{partner}' is not in pom.json")
+            elif partner == team:
+                add("warn", where, "lists its own team as a partner")
+        krs_per_obj.setdefault(oid, 0)
+        krs_per_obj[oid] += 1
+        ktype = k.get("type", "").lower()
+        if ktype not in KR_TYPES:
+            add("error", where, "type must be outcome, commitment, stretch or guardrail")
+            continue
+        if okind not in COMMITMENT_OK_KINDS:
+            mix.setdefault(team, {t: 0 for t in KR_TYPES})
+            mix[team][ktype] += 1
+        if ktype in MEASURED_TYPES:
+            measured_per_obj[oid] = measured_per_obj.get(oid, 0) + 1
+        text = k.get("kr", "")
+        if not text:
+            add("error", where, "empty key result")
+        if ktype in MEASURED_TYPES:
+            sev = "warn" if level <= 1 else "error"
+            missing = [f for f in ("baseline", "target", "unit", "cadence", "owner", "evidence_grade") if not k.get(f)]
+            if not ws.instrumented(team):
+                missing = [f for f in missing if f not in ("baseline", "evidence_grade")]
+            elif "baseline" in missing and today and ws.baseline_due and today > ws.baseline_due:
+                missing.remove("baseline")
+                add("error", where, f"no baseline and the baseline window closed on {ws.baseline_due}; measure it or turn the KR into a measure commitment")
+            if missing:
+                add(sev, where, f"{ktype} KR missing " + ", ".join(missing))
+            grade = k.get("evidence_grade", "")
+            if grade and grade not in GRADES:
+                add("error", where, "evidence_grade must be A, B, C or ?")
+            elif grade in ("C", "?"):
+                add("warn", where, f"baseline graded {grade}: measure it before the term starts")
+            first = re.split(r"\W+", text.strip().lower(), maxsplit=1)[0] if text else ""
+            if first in OUTPUT_VERBS and ktype != "guardrail":
+                add("warn", where, f"starts with '{first}': this reads like an output; rewrite it as the change you expect, or make it a commitment")
+            if ktype == "stretch":
+                stretch_per_obj[oid] = stretch_per_obj.get(oid, 0) + 1
+        else:
+            if not k.get("due") or not parse_date(k.get("due")):
+                add("error", where, "commitment needs a due date (YYYY-MM-DD)")
+            kind = k.get("commitment_kind", "").lower()
+            if kind not in COMMITMENT_KINDS:
+                add("error", where, "commitment_kind must be think, build, launch, date or measure")
+            if kind == "measure":
+                measure_commitments[team] = measure_commitments.get(team, 0) + 1
+            due = parse_date(k.get("due"))
+            if due and ws.term_end and due > ws.term_end:
+                add("warn", where, "due after the term ends")
+        sc = k.get("start_confidence", "").lower()
+        if sc and sc not in CONFIDENCES:
+            add("error", where, "start_confidence must be green, yellow or red")
+    for oid, n in stretch_per_obj.items():
+        if n > 1:
+            add("warn", f"objective {oid}", f"{n} stretch KRs; keep at most one per objective")
+    for oid, o in obj_ids.items():
+        if krs_per_obj.get(oid, 0) == 0:
+            add("warn", f"objective {oid}", "has no key results")
+        elif (o.get("kind") or "").lower() in NEEDS_GUARDRAIL_KINDS and not measured_per_obj.get(oid):
+            add("warn", f"objective {oid}", f"{o.get('kind').lower()} objective with only commitments: add a guardrail KR (for example, a health basket that must not drop more than 10%) so the migration can't quietly cost customers")
+    for tid in ws.teams:
+        if not ws.instrumented(tid):
+            if measure_commitments.get(tid):
+                add("info", f"team {tid}", "not instrumented: baselines are waived until the measure commitments are done")
+            else:
+                add("warn", f"team {tid}", "not instrumented and no measure commitment: the first job of this term is to be able to see the outcome; add a commitment of kind 'measure'")
+    for team, m in mix.items():
+        total = sum(m.values())
+        share = m["commitment"] / total if total else 0
+        level = ws.level(team)
+        limit = ws.commitment_warn.get(level)
+        msg = f"{m['commitment']} of {total} KRs are commitments ({share:.0%})"
+        if limit is not None and share > limit:
+            add("warn", f"team {team}", msg + f": above {limit:.0%} for maturity level {level}; is the team being run as a delivery unit?")
+        else:
+            add("info", f"team {team}", msg)
+
+    # check-ins
+    for c in ws.checkins:
+        where = f"check-in {c.get('date', '?')} {c.get('kr_id', '?')}"
+        if c.get("kr_id") not in kr_ids:
+            add("error", where, "kr_id is not in krs.csv")
+        if not parse_date(c.get("date")):
+            add("error", where, "date must be YYYY-MM-DD")
+        if c.get("confidence", "").lower() not in CONFIDENCES:
+            add("error", where, "confidence must be green, yellow or red")
+        grade = c.get("evidence_grade", "")
+        kr = kr_ids.get(c.get("kr_id"), {})
+        if grade and grade not in GRADES:
+            add("error", where, "evidence_grade must be A, B, C or ?")
+        elif (not grade and kr.get("type", "").lower() in MEASURED_TYPES
+              and to_float(c.get("value")) is not None and ws.level(kr.get("team", "")) >= 2):
+            add("warn", where, "value has no evidence grade (A measured, B reported, C estimated, ? unknown)")
+
+    # actions
+    for a in ws.actions:
+        where = f"action {a.get('action_id', '?')}"
+        status = a.get("status", "").lower()
+        if status not in ACTION_STATUSES:
+            add("error", where, "status must be open, solved, decided or parked")
+        if not parse_date(a.get("raised")):
+            add("error", where, "raised must be YYYY-MM-DD")
+        if status in ("solved", "decided", "parked") and not parse_date(a.get("answered")):
+            add("warn", where, "closed without an answered date")
+        if not a.get("owner"):
+            add("warn", where, "no management owner")
+
+    return out
+
+
+# ---------- report ----------
+
+def kr_checkins(ws, kid):
+    rows = [c for c in ws.checkins if c.get("kr_id") == kid and parse_date(c.get("date"))]
+    return sorted(rows, key=lambda c: c["date"])
+
+
+def pct(x):
+    """Format a fraction as a whole percentage, without a "-0%"."""
+    n = round(x * 100)
+    return f"{n if n else 0}%"
+
+
+def action_timing(ws, a, today):
+    """Return (due, on_time, open_late) for one blocker in the action log.
+
+    A blocker is due at the next gemba after it was raised. It is answered on
+    time if it was closed (solved, decided or parked) by then.
+    """
+    raised, answered = parse_date(a.get("raised")), parse_date(a.get("answered"))
+    status = a.get("status", "").lower()
+    gd = ws.gemba_days()
+    if not raised or gd is None:
+        return False, False, False
+    deadline = raised + timedelta(days=gd)
+    closed = status != "open" and answered is not None
+    due = closed or deadline <= today
+    on_time = closed and answered <= deadline
+    open_late = status == "open" and deadline <= today
+    return due, on_time, open_late
+
+
+def value_with_grade(checkin):
+    """The check-in value with its evidence grade, marking estimates."""
+    value, grade = checkin.get("value", ""), checkin.get("evidence_grade", "")
+    if not grade:
+        return value
+    if grade in ("C", "?"):
+        return f"{value} ({grade}, estimate)"
+    return f"{value} ({grade})"
+
+
+def progress(kr, value):
+    base, target, v = to_float(kr.get("baseline")), to_float(kr.get("target")), to_float(value)
+    if base is None or target is None or v is None or target == base:
+        return None
+    return (v - base) / (target - base)
+
+
+def report(ws, today):
+    lines = []
+    frac = ws.term_fraction(today)
+    p = lines.append
+    p(f"# {ws.config.get('company', '')} {ws.term_name}: report for {today.isoformat()}")
+    p("")
+    if frac is not None:
+        p(f"Term {ws.term_start} to {ws.term_end}, {pct(frac)} elapsed. Gemba cadence: {ws.config.get('gemba', {}).get('cadence', 'weekly')}.")
+    p("")
+    p("This report lists signals. It does not grade teams. People decide what they mean.")
+
+    watermelons, late_reveals, stalled, reds, overdue, estimates = [], [], [], [], [], []
+    p("")
+    p("## Key results")
+    p("")
+    p("| KR | team | type | latest | value (grade) | trend | progress vs glidepath |")
+    p("|---|---|---|---|---|---|---|")
+    for k in ws.krs:
+        kid, ktype = k.get("kr_id"), k.get("type", "").lower()
+        rows = kr_checkins(ws, kid)
+        trend = " ".join(c.get("confidence", "?")[:1].upper() for c in rows) or "no check-ins"
+        latest = rows[-1] if rows else None
+        conf = latest.get("confidence", "").lower() if latest else ""
+        glide = ""
+        if ktype == "guardrail":
+            glide = f"hold within {k.get('target')} {k.get('unit', '')}".strip()
+        if ktype in ("outcome", "stretch") and latest:
+            pr = progress(k, latest.get("value"))
+            lf = ws.term_fraction(parse_date(latest["date"]))
+            if pr is not None and lf is not None:
+                glide = f"{pct(pr)} of the way, {pct(lf)} of term gone"
+                if conf == "green" and lf > 0.5 and pr < 0.75 * lf:
+                    watermelons.append((k, pr, lf))
+        if ktype == "commitment":
+            done = any(c.get("value", "").lower() == "done" for c in rows)
+            glide = "done" if done else f"due {k.get('due')}"
+            due = parse_date(k.get("due"))
+            if not done and due and due < today:
+                overdue.append(k)
+        shown = value_with_grade(latest) if latest else ""
+        if latest and latest.get("evidence_grade") in ("C", "?") and ktype in MEASURED_TYPES:
+            estimates.append((k, latest))
+        p(f"| {kid} | {k.get('team')} | {ktype} | {conf or '-'} | {shown or '-'} | {trend} | {glide or '-'} |")
+        # late first non-green
+        first_bad = next((c for c in rows if c.get("confidence", "").lower() != "green"), None)
+        if first_bad and rows[0] is not first_bad:
+            bf = ws.term_fraction(parse_date(first_bad["date"]))
+            if bf is not None and bf >= 0.8:
+                late_reveals.append((k, first_bad["date"], bf))
+        tail = [c.get("confidence", "").lower() for c in rows[-2:]]
+        if len(tail) == 2 and tail == ["yellow", "yellow"]:
+            stalled.append(k)
+        if conf == "red":
+            reds.append(k)
+
+    p("")
+    p("## Signals")
+    p("")
+    if not (watermelons or late_reveals or stalled or reds or overdue or estimates):
+        p("- Nothing flagged.")
+    for k, pr, lf in watermelons:
+        p(f"- **Watermelon candidate** {k['kr_id']}: green, but {pct(pr)} of the way with {pct(lf)} of the term gone. Ask what the team knows that the numbers don't show.")
+    for k, d, bf in late_reveals:
+        p(f"- **Late first non-green** {k['kr_id']}: first yellow or red on {d}, {pct(bf)} into the term. Worth a look at the term review: was the risk visible earlier?")
+    for k in stalled:
+        p(f"- **Stalled yellow** {k['kr_id']}: yellow two check-ins running. What changed in the plan?")
+    for k, c in estimates:
+        p(f"- **Estimated result** {k['kr_id']}: the latest value ({c.get('value')} on {c.get('date')}) is graded {c.get('evidence_grade')}. Don't report it as an outcome; measure it before the term review.")
+    for k in reds:
+        p(f"- **Red** {k['kr_id']}: what does the team need from outside to change it? Is it in the action log?")
+    for k in overdue:
+        p(f"- **Overdue commitment** {k['kr_id']}: due {k.get('due')}, not reported done.")
+
+    shared = [k for k in ws.krs if k.get("partners", "").strip()]
+    if shared:
+        p("")
+        p("## Shared key results")
+        p("")
+        for k in shared:
+            rows = kr_checkins(ws, k.get("kr_id"))
+            conf = rows[-1].get("confidence", "-") if rows else "no check-ins"
+            p(f"- {k.get('kr_id')} ({k.get('team')}, with {k.get('partners').replace(';', ',')}): {conf}. Do the partner teams have it in their plans?")
+
+    # management actions
+    p("")
+    p("## Management answers to blockers")
+    p("")
+    if not ws.actions:
+        p("- No blockers logged.")
+    else:
+        timings = [(a, action_timing(ws, a, today)) for a in ws.actions]
+        total_due = sum(1 for _, t in timings if t[0])
+        on_time = sum(1 for _, t in timings if t[1])
+        if total_due:
+            p(f"- Answered before the next gemba: {on_time} of {total_due} ({pct(on_time / total_due)}). Parked counts as answered; silence does not.")
+        parked = sum(1 for a in ws.actions if a.get("status", "").lower() == "parked")
+        p(f"- Parked: {parked}.")
+        for a, t in timings:
+            if t[2]:
+                p(f"- **Open past the next gemba** {a.get('action_id')} ({a.get('team')}): {a.get('blocker')} (owner {a.get('owner') or 'none'}, raised {a.get('raised')})")
+
+    # health
+    breached = []
+    for h in ws.health:
+        v, lo, hi = to_float(h.get("value")), to_float(h.get("lower")), to_float(h.get("upper"))
+        if v is None:
+            continue
+        if (lo is not None and v < lo) or (hi is not None and v > hi):
+            breached.append(h)
+    p("")
+    p("## Operational health")
+    p("")
+    if not ws.health:
+        p("- No health metrics logged.")
+    elif not breached:
+        p("- All health metrics inside their limits.")
+    for h in breached:
+        p(f"- **Outside its limits** {h.get('metric')} ({h.get('team')}): {h.get('value')} on {h.get('date')}, range {h.get('lower') or '-'} to {h.get('upper') or '-'}. If it stays out, a candidate KR for next term.")
+
+    # maturity signals
+    p("")
+    p("## Maturity signals per team (listed, not scored)")
+    p("")
+    p("| team | level | outcome KRs fully specified | commitments | first non-green (term %) | blockers answered on time |")
+    p("|---|---|---|---|---|---|")
+    for tid in ws.teams:
+        tkrs = [k for k in ws.krs if k.get("team") == tid]
+        outs = [k for k in tkrs if k.get("type", "").lower() in MEASURED_TYPES]
+        spec = [k for k in outs if all(k.get(f) for f in ("baseline", "target", "cadence"))]
+        comm = [k for k in tkrs if k.get("type", "").lower() == "commitment"]
+        firsts = []
+        for k in tkrs:
+            fb = next((c for c in kr_checkins(ws, k["kr_id"]) if c.get("confidence", "").lower() != "green"), None)
+            if fb:
+                firsts.append(ws.term_fraction(parse_date(fb["date"])))
+        first = pct(min(firsts)) if firsts else "none yet"
+        timings = [action_timing(ws, a, today) for a in ws.actions if a.get("team") == tid]
+        due = sum(1 for t in timings if t[0])
+        on_time = sum(1 for t in timings if t[1])
+        blockers = f"{on_time} of {due}" if due else "none due"
+        p(f"| {tid} | {ws.level(tid)} | {len(spec)} of {len(outs)} | {len(comm)} of {len(tkrs)} | {first} | {blockers} |")
+    p("")
+    p("Not tracked by this tool: initiatives changed or stopped, and whether the strategy changed. Read the gemba notes and decision-log.md.")
+    return "\n".join(lines) + "\n"
+
+
+# ---------- cli ----------
+
+def main(argv):
+    if not argv or argv[0] in ("-h", "--help"):
+        print(__doc__)
+        return 0
+    cmd, rest = argv[0], argv[1:]
+    today = date.today()
+    if "--today" in rest:
+        i = rest.index("--today")
+        today = parse_date(rest[i + 1]) if i + 1 < len(rest) else None
+        if today is None:
+            print("--today needs YYYY-MM-DD", file=sys.stderr)
+            return 2
+        rest = rest[:i] + rest[i + 2:]
+    root = rest[0] if rest else "."
+    if not os.path.exists(os.path.join(root, "pom.json")):
+        print(f"no pom.json in {root}", file=sys.stderr)
+        return 2
+    ws = Workspace(root)
+    if cmd == "check":
+        findings = check(ws, today)
+        order = {"error": 0, "warn": 1, "info": 2}
+        for f in sorted(findings, key=lambda f: order[f.severity]):
+            print(f"{f.severity:5}  {f.where}: {f.message}")
+        errors = sum(1 for f in findings if f.severity == "error")
+        warns = sum(1 for f in findings if f.severity == "warn")
+        print(f"\n{errors} errors, {warns} warnings")
+        return 1 if errors else 0
+    if cmd == "report":
+        sys.stdout.write(report(ws, today))
+        return 0
+    print(f"unknown command {cmd}; use check or report", file=sys.stderr)
+    return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

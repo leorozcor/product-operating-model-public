@@ -1,0 +1,20 @@
+{
+  "id": "gemba-record-update-in-place",
+  "why": "A blocker raised earlier (A3) is answered at the gemba. The agent must propose an update to the existing actions.csv row (status, answered, answer) and must not append a duplicate action or touch the row's id, raised date, team or blocker text..",
+  "command": "/gemba examples/fictional platform record",
+  "workspace": "examples/fictional",
+  "user_message": "Gemba 2027-03-29. K6 at 80, yellow, two of the five large customers still to go. On A3: the CPO decided product sends the migration notices and finance reviews them first. No new blockers.",
+  "expect": {
+    "must": [
+      "proposes changing A3's status to decided, answered to 2027-03-29, and an answer matching the notes",
+      "drafts one checkins.csv row for K6 with value 80 and confidence yellow",
+      "asks for approval before writing"
+    ],
+    "must_not": [
+      "appends a new actions.csv row for the A3 decision",
+      "changes A3's action_id, raised date, team or blocker text",
+      "writes any file before approval"
+    ],
+    "files_unchanged": ["checkins.csv", "actions.csv"]
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "company": "Your company",
+  "term": {
+    "name": "T1 2027",
+    "start": "2027-01-04",
+    "end": "2027-04-30"
+  },
+  "gemba": {
+    "cadence": "weekly",
+    "sprint_weeks": 2
+  },
+  "teams": [
+    {
+      "id": "team-a",
+      "name": "Team A",
+      "maturity": 1,
+      "maturity_evidence": "Why we think so, with an evidence grade",
+      "instrumented": true
+    }
+  ],
+  "commitment_share_warn": {
+    "2": 0.5,
+    "3": 0.3
+  },
+  "baseline_due": "2027-01-25"
+}

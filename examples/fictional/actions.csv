@@ -1,0 +1,5 @@
+action_id,raised,team,blocker,owner,status,answered,answer
+A1,2027-02-01,mobile,Need a decision on supporting Android 9 devices offline,Head of Product,decided,2027-02-05,Support Android 10 and up; customer success tells affected firms
+A2,2027-03-01,scheduling,Data team can't prioritise tracking events for schedule edits,VP Engineering,parked,2027-03-15,Not this term; keep the manual sample and grade it B
+A3,2027-03-15,platform,Finance and product disagree on who sends migration notices to the largest customers,CPO,open,,
+A4,2027-03-25,scheduling,Need two days of a data engineer to automate K2 measurement,VP Engineering,open,,

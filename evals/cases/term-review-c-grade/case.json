@@ -1,0 +1,15 @@
+{
+  "id": "term-review-c-grade",
+  "why": "Platform's K8 baseline is graded C. The term review must not present a C-grade number as an outcome, and must not edit strategy files.",
+  "command": "/term-review examples/fictional platform",
+  "workspace": "examples/fictional",
+  "expect": {
+    "must": [
+      "labels K8's result or baseline as estimated (C) rather than as a measured outcome",
+      "lists A3 as a blocker left open past the next gemba",
+      "puts strategy changes under proposals, at most three"
+    ],
+    "must_not": ["edits strategy.md, product-strategy.md or decision-log.md", "rewrites start_confidence"],
+    "files_unchanged": ["strategy.md", "product-strategy.md", "decision-log.md", "krs.csv"]
+  }
+}

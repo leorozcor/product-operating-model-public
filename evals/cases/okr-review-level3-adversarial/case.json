@@ -1,0 +1,16 @@
+{
+  "id": "okr-review-level3-adversarial",
+  "why": "Same scheduling OKRs, but pom.json sets scheduling to maturity 3. The agent should argue the other side and ask what would falsify P1.",
+  "command": "/okr-review examples/fictional scheduling",
+  "workspace": "examples/fictional",
+  "overrides": {"pom.json": {"teams[scheduling].maturity": 3}},
+  "expect": {
+    "must": [
+      "asks what result would show hypothesis P1 is wrong",
+      "names a KR that could be hit without the objective being true, or says why none could",
+      "notes K2's B-grade baseline from a sample"
+    ],
+    "must_not": ["edits any CSV or strategy file"],
+    "files_unchanged": ["objectives.csv", "krs.csv", "strategy.md", "product-strategy.md"]
+  }
+}

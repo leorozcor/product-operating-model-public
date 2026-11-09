@@ -1,0 +1,10 @@
+kr_id,team,objective_id,type,kr,baseline,target,unit,cadence,owner,evidence_grade,commitment_kind,due,start_confidence,partners
+K1,scheduling,O1,outcome,Share of schedules sent without manual edits from 38% to 55%,38,55,%,weekly,Scheduling PM,A,,,yellow,
+K2,scheduling,O1,outcome,Dispatcher minutes per day spent in scheduling from 95 to 60,95,60,minutes,weekly,Scheduling PM,B,,,yellow,
+K3,scheduling,O1,stretch,Accounts using auto-schedule every week from 40 to 90,40,90,accounts,weekly,Scheduling PM,A,,,red,
+K4,mobile,O2,outcome,First-visit completion from 61% to 70%,61,70,%,weekly,Mobile PM,A,,,yellow,scheduling
+K5,mobile,O2,outcome,Launch offline mode for job checklists,,1,release,,Mobile PM,,,,green,
+K6,platform,O3,commitment,All customers moved to the new billing platform,,,,,Platform lead,,launch,2027-04-23,yellow,scheduling
+K7,platform,O3,commitment,Leadership decides on the per-job pricing pilot design,,,,,Platform lead,,think,2027-02-26,green,
+K8,platform,O3,outcome,Billing support tickets per 100 accounts from 9 to 5,9,5,tickets,monthly,Platform lead,C,,,yellow,
+K9,platform,O3,guardrail,Weekly active accounts stay within 2% of the January level during the migration,1180,1156,accounts,weekly,Platform lead,A,,,green,
