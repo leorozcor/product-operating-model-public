@@ -35,16 +35,16 @@ Some companies have almost no product instrumentation: they can count releases a
 
 A team at level 1 with no instrumentation is not failing. It is doing the work that makes level 2 possible.
 
-## Common patterns
+## Diagnostic patterns (illustrative)
 
-Patterns that show up when OKRs meet real organisations.
+These are hypothetical situations to help teams ask better questions. They are not case studies or evaluations of a current or former employer.
 
-- **The framework is more mature than the teams.** Excellent guidance (few objectives, KPI definitions, links to top-level goals) over team sheets full of deliverables, all "On Track". Judge maturity from the team sheets, not the guide.
-- **A template copied without its rituals.** The same grid produced weekly, honest reds in one company and empty "TBA" cells in another. What made the difference was the gemba, management answers, and someone coaching, not the columns.
-- **Status hides risk; confidence shows it.** Sheets that asked "On Track?" recorded almost no risk. Sheets that asked "Might we miss it? Do we need to change our plans?" recorded yellows and reds.
-- **Commitment-heavy migration years.** During a platform move or a large migration, deliverable KRs are rational. The missing piece is a guardrail per migration objective.
-- **Learning in prose before numbers.** A team with no baselines can still learn well: its check-in notes name trade-offs, unknowns and whether the KRs themselves should change. Read the notes.
-- **Seed with a believer.** A team whose coach or PM already practises learning loops moves faster than the organisation around it. Use such teams as pilots, and don't mistake their maturity for the organisation's. If that person leaves, expect the team to drop back.
+- **Guidance and practice may diverge.** Compare the intended OKR approach with actual team objectives and check-ins. If many KRs describe deliverables, coach toward outcomes rather than treating a written standard as evidence of maturity.
+- **Templates are not learning loops.** Ask whether teams discuss results, what surprised them, and what changed afterwards. A completed spreadsheet alone doesn't establish learning.
+- **Status and confidence answer different questions.** Ask not just whether a KR is "on track" but how confident the team is, and what new evidence would change that confidence.
+- **Migrations may require commitments.** Pair necessary milestones with customer-value or product-health guardrails.
+- **Qualitative learning matters before instrumentation.** Capture trade-offs, unknowns and changes of mind while teams build reliable measurement.
+- **Pilots do not define organisational maturity.** Observe whether practices survive beyond a single team or champion before scaling them.
 
 ## Commitment share by level
 
