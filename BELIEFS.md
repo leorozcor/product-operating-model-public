@@ -92,7 +92,7 @@ Decisions are where strategy, values and culture become concrete. A level can't 
 
 ## 4. Strategy and learning
 
-**4.1 Strategy and OKRs refine each other** (principle). Strategy sets direction for OKRs, and what OKRs teach should revise strategy. A strategy that never changes after a term of evidence is either very good or not listening. Usually it is not listening.
+**4.1 Strategy and OKRs refine each other** (principle). Strategy sets direction for OKRs, and what OKRs teach should revise strategy. When strategy stays unchanged through several rounds of evidence, ask whether the evidence reached decision-makers and was considered. Stability can also be a deliberate, well-supported choice.
 *In this model:* each term review ends with proposed strategy changes, which leadership accepts, rejects or parks in the decision log.
 
 **4.2 Strategy is a set of falsifiable bets** (principle). Write strategic choices as hypotheses with a horizon and a sign of being wrong. "We win by X" is a slogan until it says what would show it isn't working.
@@ -105,7 +105,7 @@ Decisions are where strategy, values and culture become concrete. A level can't 
 
 **4.6 Know which kind of decision you face** (heuristic). Irreversible decisions justify slowing down for certainty. For reversible ones, waiting for certainty is the expensive mistake.
 
-**4.7 Ask what the system makes rational** (heuristic). When people behave badly, ask what the incentives, structure and information make rational for them. "That is the difference between a diagnosis and a complaint." But an explanation is not an excuse.
+**4.7 Ask what the system makes rational** (heuristic). When behaviour is unhelpful, ask what the incentives, structure and information make rational. Understanding the conditions improves diagnosis without excusing harmful choices.
 
 **4.8 The profit formula decides what product work is rational** (hypothesis). Ask what the business actually makes money from and what product behaviour that makes rational. A product strategy that fights the profit formula needs leadership to change the formula, or it will lose.
 *What would count against it:* a product strategy that succeeds while rewarding the opposite of what the profit formula pays for.
@@ -132,7 +132,7 @@ Decisions are where strategy, values and culture become concrete. A level can't 
 
 ## 6. AI in the operating model
 
-**6.1 AI is an amplifier** (hypothesis). It amplifies how good or bad an organisation already is. Without documentation, taste, vision and objectives it produces slop at scale.
+**6.1 AI is an amplifier** (hypothesis). It amplifies how good or bad an organisation already is. Without clear objectives, documentation and feedback, it can multiply low-value output.
 *What would count against it:* weak teams that get reliably better by adopting AI tools alone.
 
 **6.2 AI expands "could" faster than it resolves "should"** (hypothesis). When building gets cheaper, choosing badly gets more expensive. The old constraints were a brake on bad decisions. The hard problem becomes knowing what to build, not building it.
