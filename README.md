@@ -6,7 +6,9 @@ A concept-stage toolkit for running product strategy, OKRs, gembas and term revi
 
 **Public edition.** This repository is the public edition of a toolkit that is maintained privately. It gets updates in periodic releases, later and in batches, not continuously.
 
-**Keep company data out of this public repository.** Copy it into a private repository inside the company and keep workspaces, OKRs and strategy there.
+**Keep company data out of this public repository.** Copy it into a private repository inside the company and keep workspaces, OKRs and strategy there. The public edition ignores `workspace/` by default; a company that wants to version-control its workspace should deliberately remove that ignore entry in its private fork.
+
+**Before publishing an update:** Review new files, examples, code, tests and commit history for confidential documents, real employer or client figures, private people, secrets, and descriptions that could identify or judge a former employer. Replace these with independent fictional examples or neutral diagnostic questions. Check third-party attribution and permissions. Removing a line in a later commit does not erase the earlier public history.
 
 ## Start here
 
