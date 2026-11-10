@@ -18,16 +18,19 @@ ChatGPT does not automatically execute Claude Code slash commands or necessarily
 - **Review drafts are free; everything else needs approval.** Drafts in `reviews/` (OKR reviews, term reviews) may be written without approval: they are proposals, and people decide what to do with them. Every other write, including gemba notes, new CSV rows and management-action updates, needs explicit approval after you show the complete text or exact rows. These are the same rules Claude follows in `CLAUDE.md`.
 - `checkins.csv` is append-only. Add new blockers to `actions.csv`; an existing action may have only its `owner`, `status`, `answered` and `answer` fields updated after approval. Do not change its identity, raised date, team or original blocker. Git history records changes.
 - Grade evidence: **A** measured; **B** reported, recalled or sampled; **C** estimated; **?** unknown. Never present an estimate as an observed result. In `checkins.csv`, fill `evidence_grade` only when you know how the value was obtained; otherwise leave it blank and say so. `bin/pom report` marks C and ? values as estimates. Do not invent figures, names, dates, quotations or causality. Preserve predictions frozen at the start of the term.
+- **Intake drafts only.** When reading existing strategy documents or OKR sheets, write drafts in `reviews/intake/` and nowhere else; the team copies rows into its files. Leave gaps blank, keep status words out of the confidence field, and never set start confidences or maturity levels.
 - Read each team's maturity level from `pom.json` and use `model/maturity.md`: **listen** at 0, **coach** at 1, **challenge** at 2, **adversarially test assumptions** at 3. Never rank teams or assess individuals.
 - Do not assume tools ran. If shell execution is available, use `python3 -m unittest discover -s tests` after code changes and `bin/pom check <workspace>` / `bin/pom report <workspace> [--today YYYY-MM-DD]` for analysis. Otherwise show the commands for a person to run and distinguish observed results from unverified expectations.
 
-## Four equivalent workflows (plain-language prompts)
+## Five equivalent workflows (plain-language prompts)
 
 **Review OKRs:** “Review `<workspace>` for team `<team-id>` using `.claude/commands/okr-review.md` as the workflow specification. Use the team's maturity stance, the checker output if available, and the strategy files. Write the draft to `reviews/<term>/<team-id>-okr-review.md`, show it, and do not edit the OKRs.”
 
 **Prepare a gemba:** “Prepare a one-screen facilitator brief for `<team-id>` in `<workspace>`, following `.claude/commands/gemba.md` in `prepare` mode. Use current KR trends, management blockers and no more than three useful questions. Read-only; do not write.”
 
 **Record a gemba:** “Using these facilitator notes, follow `.claude/commands/gemba.md` in `record` mode for `<team-id>` in `<workspace>`. Show the proposed gemba note, `checkins.csv` additions, `actions.csv` additions and any updates to existing actions. Include each value's evidence grade only when the notes say how it was obtained. Wait for approval before writing; leave unknown values blank.”
+
+**Bring in existing documents:** “Following `.claude/commands/intake.md` and `model/intake.md`, read `<source files>` (mode `strategy` or `okrs`) and draft workspace files for `<workspace>` in `<workspace>/reviews/intake/`, with a `source` column on every drafted row and an intake report from `templates/intake/`. Copy wording as written, leave every gap blank, don't turn status words into confidence colours, and don't write any other file.”
 
 **Review a term:** “Draft the term review for `<team-id>` in `<workspace>` following `.claude/commands/term-review.md`. Compare outcomes to the frozen forecast, use each result's latest check-in grade (say when it is unknown), expose contrary findings and propose up to three strategy changes. Write the draft to `reviews/<term>/<team-id>-term-review.md` and show it; do not edit strategy or the decision log.”
 

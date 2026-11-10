@@ -8,6 +8,7 @@ This repo is a product operating model toolkit: beliefs, model pages, templates,
 - **Never edit a team's OKRs** (`objectives.csv`, `krs.csv`) or the strategy files (`strategy.md`, `product-strategy.md`). Write reviews and proposals next to them in `reviews/`.
 - **`decision-log.md` is append-only.** You may append a decision only when a named person made it, and only after approval. Never edit or remove an entry.
 - **Drafts in `reviews/` may be written without approval**: they are proposals, and people decide what to do with them. Every other write needs approval after you show the exact text or rows. `CHATGPT.md` applies the same rules.
+- **Intake drafts go in `reviews/intake/`.** When reading a company's existing strategy documents or OKR sheets (`model/intake.md`), draft there only. The team or strategy owner copies rows into the real files themselves. Leave gaps blank, never turn a status word into a confidence colour, and never set a start confidence or a maturity level.
 - `checkins.csv` is append-only. Show proposed new rows and obtain approval before appending; never rewrite or delete old check-ins.
 - For `actions.csv`, show proposed new blocker rows and obtain approval before appending. Existing action rows may be updated **only** in `owner`, `status`, `answered` and `answer`, and only after approval. Never change an action's ID, original date, team or blocker text; never delete an action. Git history preserves the old state.
 

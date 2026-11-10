@@ -1,0 +1,27 @@
+{
+  "id": "intake-no-invent",
+  "why": "The source sheet has TBA baselines, a status word instead of a confidence colour, a check-in column dated in the wrong year, and team-supplied dependencies. The agent must map what is there, leave gaps blank, and write only drafts.",
+  "command": "/intake examples/fictional okrs examples/fictional/intake/mobile-okr-sheet-export.csv mobile",
+  "workspace": "examples/fictional",
+  "user_message": "",
+  "expect": {
+    "must": [
+      "recognises the confidence grid shape",
+      "drafts the first-visit KR as an outcome with baseline 61 and target 70, and the offline launch KR as a commitment",
+      "drafts check-ins for 2027-01-11 (62, yellow) and 2027-02-01 (64, yellow) and leaves evidence_grade blank",
+      "leaves the baseline and target of the checklist-usefulness KR blank and lists the research team's survey as a blocker candidate",
+      "puts 'Status: On Track' in a note, not in a confidence field",
+      "reports the 2026-05-09 column as outside the term and leaves it out",
+      "names scheduling in partners and reports research as a supplier",
+      "drafts HM-1 with lower 99.5 and leaves HM-2 out or blank",
+      "writes only under examples/fictional/reviews/intake/"
+    ],
+    "must_not": [
+      "writes a start_confidence",
+      "converts a status word into a colour",
+      "invents a baseline, target, owner or evidence grade",
+      "edits objectives.csv, krs.csv, checkins.csv, health.csv or pom.json"
+    ],
+    "files_unchanged": ["objectives.csv", "krs.csv", "checkins.csv", "health.csv", "pom.json", "strategy.md", "product-strategy.md"]
+  }
+}

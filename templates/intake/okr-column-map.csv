@@ -1,0 +1,32 @@
+source_header,shape,toolkit_file,toolkit_field,rule
+Objective;Team objective;Main objective,any,objectives.csv,objective,Copy the text as written. Number objectives O1 O2… in sheet order.
+Sub-objective,status tracker,objectives.csv,objective,Ask whether it is an objective or a key result. Don't decide.
+Priority;Rank,any,intake report,,Record the order. The toolkit has no priority field; one to three objectives per team is the rule.
+Type or tag (must-win;top-level),status tracker,intake report,,A must-win or top-level tag is a link up. Ask which strategy hypothesis it serves.
+Key result;Team key result;North star;KPI;Indicator,any,krs.csv,kr,Copy the text as written. Propose a type using model/intake.md.
+Starting point;Baseline,any,krs.csv,baseline,"Numbers only. TBA, x, ?, - and blanks stay blank. Text like '0 shipped' means a commitment: leave baseline blank and note it."
+Target;Term target;Term goal,any,krs.csv,target,"Numbers only. A placeholder (Z, TBA) stays blank."
+Year-end target,any,intake report,,Not a term field. Record it as context for the objective's narrative.
+Deadline;Target date;Due,status tracker,krs.csv,due,Only for commitments. ISO date. Ignore countdown columns.
+Unit,any,krs.csv;kpi-definitions.csv,unit;unit,
+Owner;Responsible,any,krs.csv,owner,Use the role if the workspace uses roles. Never guess a name.
+Data owner,status tracker,kpi-definitions.csv,data_owner,
+Metric name;Metric definition,status tracker,kpi-definitions.csv,kpi;definition,Draft only where the source defines it.
+Data source;Source,status tracker,kpi-definitions.csv,source,
+Frequency,status tracker,kpi-definitions.csv;krs.csv,frequency;cadence,"Map weekly, sprint, monthly. Leave others in the report."
+Available on,status tracker,kpi-definitions.csv,available_on,
+Reporting period,status tracker,kpi-definitions.csv,period,
+Initiatives;Planned actions,any,intake report,,"Initiatives are not KRs. List them under the objective. Backlog item numbers stay in the report, not the drafts."
+Partner teams;Shared with,confidence grid,krs.csv,partners,Team ids separated by ';'. Map names to ids in pom.json; ask when unsure.
+Supplier teams;Contributing teams,confidence grid,krs.csv,partners,Same as partners. Note in the report that they supply rather than share.
+Link to top-level OKR,status tracker,objectives.csv;intake report,top_metrics,"Copy the top-level KR name to top_metrics if it is a metric. Otherwise report it, and ask which strategy hypothesis it serves."
+Confidence (fill colour or word),confidence grid,checkins.csv,confidence,"Only if the sheet's legend defines the colours as confidence. green, yellow, red. Say the colours were read by script or by eye."
+Status (on track;at risk;off track;not started),status tracker,checkins.csv,note,Never convert to a confidence colour. Write the status in the note and leave confidence blank.
+Closed;Done,confidence grid,intake report,,Ask whether a commitment was met or an outcome was dropped.
+Week N;Sprint N;Period N;Checkpoint <date>;<month> actual,any,checkins.csv,date;value,"Date from the column header if it falls inside the term in pom.json; otherwise report the mismatch and leave the row out. Value from the cell, numbers only."
+Note row under a KR;Comments,any,checkins.csv,note,"Keep the full text in the report; put a one-line summary in the note."
+Health metric;Balancing metric,any,health.csv,metric;lower;upper,"Min to lower, Max to upper. Word grades with no numbers go to the report."
+Dependencies;Contributions to other teams,confidence grid,intake report,,Candidate for templates/dependency-handshake.md and for partners on the other team's KR.
+Value-type mapping (statutory;automation;ease of use;legacy shutdown),company sheet,intake report,,"Hint for objective kind: statutory, platform or migration. Propose; the team decides."
+Team members;Coaches;Sponsors;Manager;Chat channel,any,nowhere,,"People and channels are not needed. Don't copy names into drafts or reports."
+Chart settings;Sparkline;Progress bar,any,nowhere,,Formatting only.

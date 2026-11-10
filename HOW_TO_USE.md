@@ -74,6 +74,12 @@ OKRs need something to point at. Fill in `strategy.md` (where we play, how we wi
 
 Write every strategic choice as a hypothesis with a horizon and a sign of being wrong. If the company has no written strategy, write what you hear, mark it grade B or C, and say so. A rough strategy that people can argue with beats a missing one.
 
+If the company already has a strategy deck, start from it instead of a blank page. Follow [model/intake.md](model/intake.md), or run:
+```
+/intake workspace/2027-T1 strategy <deck or document>
+```
+It drafts `strategy.draft.md` and `product-strategy.draft.md` in `reviews/intake/` with the source's wording, and a report of the gaps: choices with no evidence, no horizon or no sign of being wrong, and team work with no choice above it. The strategy owner decides what goes into the real files.
+
 ## Step 5. Set up the term workspace
 
 ```
@@ -87,6 +93,12 @@ The public edition's `.gitignore` excludes `workspace/`. In the company's privat
 In `workspace/2027-T1/pom.json`, set the term dates, the gemba cadence (`weekly`, `sprint` or `monthly`), the teams, and optionally `baseline_due` (default: three weeks after the term starts). Dates live only here, so an old term's calendar can't sneak into a new one.
 
 ## Step 6. Teams draft their OKRs
+
+If the teams already plan in an OKR spreadsheet, bring it in first rather than retyping it:
+```
+/intake workspace/2027-T1 okrs <exported sheet> payments
+```
+It recognises the common sheet shapes, drafts rows in `reviews/intake/` with a `source` column, keeps blanks blank, and lists what each team still has to fill in. The team edits the draft and copies its rows into `objectives.csv` and `krs.csv`. Mid-term, it can also bring in the check-in history; start confidences can't be recovered and stay blank.
 
 Each team writes its rows in `objectives.csv` and `krs.csv`. The short version of [model/okrs.md](model/okrs.md):
 

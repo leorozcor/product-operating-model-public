@@ -25,6 +25,7 @@ A concept-stage toolkit for running product strategy, OKRs, gembas and term revi
    - [maturity.md](model/maturity.md): OKR maturity levels 0 to 3 and what changes at each
    - [teams-and-dependencies.md](model/teams-and-dependencies.md): team decision boundaries, cross-functional partners and dependency agreements
    - [discovery-and-evidence.md](model/discovery-and-evidence.md): turning product risks and initiatives into credible learning
+   - [intake.md](model/intake.md): reading the strategy decks and OKR spreadsheets a company already has, and mapping them onto the model
 4. **[examples/fictional/](examples/fictional/)**: a made-up company mid-term, to see everything working.
 
 ## The loop
@@ -57,6 +58,7 @@ The core model, templates and Python checker work without an AI assistant. Claud
 | `bin/pom report <workspace> [--today D]` | Confidence trends, values with evidence grades, estimated results, watermelon candidates, stalled yellows, overdue commitments, blockers answered before the next gemba, health breaches, maturity signals | No |
 | `/okr-review <workspace> <team>` | Reviews draft OKRs at the stance the team's maturity calls for | Writes a review in `reviews/` |
 | `/gemba <workspace> <team> prepare\|record` | A facilitator brief, or a gemba note and new rows from notes | Prepare: no. Record: approved additions and existing action-status updates only |
+| `/intake <workspace> strategy\|okrs <files> [team]` | Reads existing strategy documents or OKR sheets and drafts workspace files from them, with a report of what is missing | Writes drafts in `reviews/intake/` |
 | `/term-review <workspace> <team>` | Drafts the term review and proposed strategy changes | Writes a draft in `reviews/` |
 
 Agents never edit a team's OKRs or the strategy. See [CLAUDE.md](CLAUDE.md) for shared safeguards and [CHATGPT.md](CHATGPT.md) for the ChatGPT adapter.

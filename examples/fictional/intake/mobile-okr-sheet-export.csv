@@ -1,0 +1,13 @@
+Technician app,,,,,,,,,,,
+Legend (confidence): green = on course for the target | yellow = at risk; plans may need to change | red = out of reach; rethink,,,,,,,,,,,
+Objectives,Key Result,Starting point,Term target,Year-end target,Key initiatives,Partner teams,Supplier teams,2027-01-11,2027-02-01,2027-03-01,2026-05-09
+Technicians finish more jobs on the first visit,First-visit completion,61%,70%,75%,I1: Offline checklists; I2: Pre-arrival job summary,Scheduling,,62 [yellow],64 [yellow],,
+,,,,,,,,Offline beta with 20 technicians,Status: On Track,,
+,Technicians rate the checklist useful,TBA,TBA,,I1: In-app survey,,Research,,,,
+,,,,,,,,Survey owned by research team; not scheduled,,,
+,Launch offline mode for job checklists,0 shipped,1 shipped,,,,,,[green],,
+Health metrics,,Min,Max,,,,,,,,
+HM-1,App crash-free sessions (%),99.5,,,,,,99.7,99.6,,
+HM-2,Team health metric,TBA,TBA,,,,,,,,
+Dependencies,Other team's key result,,What we provide,,,,,,,,
+Scheduling,Share of schedules sent without manual edits,,Expose job duration from the app,,,,,,,,
